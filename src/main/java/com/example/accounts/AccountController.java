@@ -100,6 +100,7 @@ public class AccountController {
   }
 
   // 잡고 싶은 exception 을 작성, 예외를 잡는다!
+  // 전역 처리를 위해 새로운 클래스를 만들어서 옮긴다. ExceptionHandlers
   @ExceptionHandler(UserDuplicatedException.class)
   public ResponseEntity handleUserDuplicatedException(UserDuplicatedException e) {
     ErrorResponse errorResponse = new ErrorResponse();

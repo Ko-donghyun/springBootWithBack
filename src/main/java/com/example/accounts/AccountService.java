@@ -1,7 +1,9 @@
 package com.example.accounts;
 
-import ch.qos.logback.core.joran.util.beans.BeanUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,10 @@ import java.util.Date;
  */
 @Service
 @Transactional // 안에 있는 모든 퍼블릭 메서드는 @Transactional 어노테이션이 적용이 된다.
+@Slf4j
 public class AccountService {
+
+//  private Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private AccountRepository accountRepository;
@@ -31,6 +36,8 @@ public class AccountService {
     // TODO 유효한 username인지 판단
     String userName = dto.getUsername();
     if (accountRepository.findByUserName(userName) != null) {
+      log.error("user duplicated exceptions. {}", userName);
+//      logger.error("user duplicated exceptions. {}", userName);
       throw new UserDuplicatedException(userName);
     }
 
