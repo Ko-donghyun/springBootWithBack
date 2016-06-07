@@ -14,6 +14,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
+		<spring-security.version>4.0.2.RELEASE</spring-security.version>
 		<!--버전을 바꿔도 되는데 스프링에서 잘 호환되는 버전으로 해 놓은 것이기 때문에 주어진 대로 쓰는게 좋다.-->
 		<!--<h2.version>1.4.187</h2.version>-->
 	</properties>
@@ -77,6 +78,32 @@
 			<groupId>com.jayway.jsonpath</groupId>
 			<artifactId>json-path</artifactId>
 		</dependency>
+
+		<!--시큐리티-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+		</dependency>
+
+
+		<!--www.webjars.org-->
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>react</artifactId>
+			<version>0.13.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>3.3.5</version>
+		</dependency>
+
 	</dependencies>
 	
 	<build>

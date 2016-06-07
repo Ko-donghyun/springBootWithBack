@@ -8,6 +8,7 @@ import java.util.Date;
 
 /**
  * 유저를 위한 클래스
+ * 도메인? 빈?
  */
 @Entity
 @Getter
@@ -20,6 +21,8 @@ public class Account {
   @Column(unique = true)
   private String userName;
 
+  private String fullName;
+
   private String password;
 
   private String email;
@@ -31,5 +34,6 @@ public class Account {
   @Temporal(TemporalType.TIMESTAMP)
   private Date updated;
 
+  private boolean isAdmin;
 
 }

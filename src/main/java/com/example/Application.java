@@ -4,9 +4,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * 메인 메소드가 들어가는 핵심 클래스
+ * 구동의 진입점.
  */
 @SpringBootApplication
 public class Application {
@@ -21,5 +24,10 @@ public class Application {
   @Bean
   public ModelMapper modelMapper() {
     return new ModelMapper();
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
   }
 }

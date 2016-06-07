@@ -17,14 +17,18 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.web.bind.annotation.RequestMethod.*;
+
 /**
- * Account 컨트롤러, 라우팅 설정!
+ * Account 컨트롤러
+ * 라우팅 설정!
  */
 // @Controller
 // @ResponseBody 클래스 안의 모든 public 메소드에 @ResponseBody 를 적용한다.
 // @RestController = @Controller + @ResponseBody
 // 요즘에는 API 개발로 바뀌어서 @RestController로 쓴다.
 @RestController
+//@RequestMapping("/api/") 프리픽스 붙이기
 public class AccountController {
 
   @Autowired
@@ -50,7 +54,7 @@ public class AccountController {
 //
 //  }
 
-  @RequestMapping(value = "/accounts", method = RequestMethod.POST)
+  @RequestMapping(value = "/accounts", method = POST)
   public ResponseEntity createAccount(@RequestBody @Valid AccountDto.Create create,
                                      BindingResult result) {
     // 서버 사이드 개발이 Rest API 로 가서 @RequestBody 를 주로 쓰는데
@@ -99,22 +103,12 @@ public class AccountController {
 
   }
 
-  // 잡고 싶은 exception 을 작성, 예외를 잡는다!
-  // 전역 처리를 위해 새로운 클래스를 만들어서 옮긴다. ExceptionHandlers
-  @ExceptionHandler(UserDuplicatedException.class)
-  public ResponseEntity handleUserDuplicatedException(UserDuplicatedException e) {
-    ErrorResponse errorResponse = new ErrorResponse();
-    errorResponse.setMessage(e.getUserName() + "중복 이메일 입니다");
-    errorResponse.setCode("duplicated.userName.exception");
-    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-  }
-
 
   // TODO HATEOAS
   // TODO 뷰
   // No SPA : 1. JSP, 2. Thymeleaf
   // SPA : 3. 앵귤러, 4. 리액트
-  @RequestMapping(value = "/accounts", method = RequestMethod.GET)
+  @RequestMapping(value = "/accounts", method = GET)
   public ResponseEntity getAccounts(Pageable pageable) {
     // 스프링에서 제공해주는 페이징 처리
     // 서비스를 거쳐갈 것인가?, 리파짓 토리를 바로 쓸 것인가?
@@ -127,6 +121,68 @@ public class AccountController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+
+  @RequestMapping(value = "/accounts/{id}", method = GET)
+  public ResponseEntity getAccount(@PathVariable Long id) {
+    Account account = accountService.getAccount(id);
+    // 서비스로 만들어냄.
+//    Account account = accountRepository.findOne(id);
+//    if (account == null) {
+//      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//    }
+
+    // 모델 매퍼로 응답 DTO로 변환 시키자
+    AccountDto.Response result = modelMapper.map(account, AccountDto.Response.class);
+    return new ResponseEntity<>(result, HttpStatus.OK);
+  }
+
+  // 전체 업데이트(userName, password, fullName 이 한 번에) vs 부분 업데이트(userName 만 들어올 수도 있다.)
+  @RequestMapping(value = "/accounts/{id}", method = PUT)
+  public ResponseEntity updateAccount(@PathVariable Long id,
+                                      @RequestBody @Valid AccountDto.Update updateDto,
+                                      BindingResult result) {
+    if (result.hasErrors()) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+    Account updatedAccount = accountService.updateAccount(id, updateDto);
+    return new ResponseEntity<>(modelMapper.map(updatedAccount, AccountDto.Response.class), HttpStatus.OK);
+  }
+
+
+  @RequestMapping(value = "/accounts/{id}", method = DELETE)
+  public ResponseEntity deleteAccount(@PathVariable Long id) {
+    accountService.deleteAccount(id);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+
+  // 잡고 싶은 exception 을 작성, 예외를 잡는다!
+  // 전역 처리를 위해 새로운 클래스를 만들어서 옮긴다. ExceptionHandlers
+  @ExceptionHandler(UserDuplicatedException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleUserDuplicatedException(UserDuplicatedException e) {
+    ErrorResponse errorResponse = new ErrorResponse();
+    errorResponse.setMessage(e.getUserName() + "중복 이메일 입니다");
+    errorResponse.setCode("duplicated.userName.exception");
+    return errorResponse;
+  }
+
+//  @ExceptionHandler(UserDuplicatedException.class)
+//  public ResponseEntity handleUserDuplicatedException(UserDuplicatedException e) {
+//    ErrorResponse errorResponse = new ErrorResponse();
+//    errorResponse.setMessage(e.getUserName() + "중복 이메일 입니다");
+//    errorResponse.setCode("duplicated.userName.exception");
+//    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+//  }
+
+  @ExceptionHandler(AccountNotFoundException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleAccountNotFoundException(AccountNotFoundException e) {
+    ErrorResponse errorResponse = new ErrorResponse();
+    errorResponse.setMessage(e.getId() + "에 해당하는 계정이 없다.");
+    errorResponse.setCode("account.not.found.exception");
+    return errorResponse;
+  }
 
 
 }
